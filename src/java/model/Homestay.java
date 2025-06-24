@@ -26,9 +26,6 @@ public class Homestay implements java.io.Serializable{
     public Homestay() {
     }
 
-    
-    // Getter & Setter...
-
     public int getHomestayId() {
         return homestayId;
     }

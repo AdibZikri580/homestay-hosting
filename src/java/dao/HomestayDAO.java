@@ -1,5 +1,7 @@
 package dao;
 
+import dao.ImageDAO;
+import model.Image;
 import model.Homestay;
 import java.sql.*;
 import java.util.ArrayList;
@@ -249,49 +251,30 @@ public class HomestayDAO {
     // Cari homestay berdasarkan lokasi + penapis
     public List<Homestay> searchHomestays(String keyword, String wifi, String aircond, String minBeds) throws SQLException {
         List<Homestay> list = new ArrayList<>();
+        ImageDAO imageDAO = new ImageDAO(conn);
 
-        StringBuilder sql = new StringBuilder(
-            "SELECT h.*, i.image_path " +
-            "FROM homestays h " +
-            "LEFT JOIN ( " +
-            "   SELECT i1.homestay_id, i1.image_path " +
-            "   FROM images i1 " +
-            "   INNER JOIN (SELECT homestay_id, MIN(uploaded_at) AS first_upload FROM images GROUP BY homestay_id) i2 " +
-            "   ON i1.homestay_id = i2.homestay_id AND i1.uploaded_at = i2.first_upload " +
-            ") i ON h.homestay_id = i.homestay_id " +
-            "WHERE 1=1 "
-        );
-
+        StringBuilder sql = new StringBuilder("SELECT * FROM homestays WHERE 1=1 ");
         List<Object> params = new ArrayList<>();
 
-        // Carian lokasi
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append("AND (LOWER(h.city) LIKE ? OR LOWER(h.state) LIKE ?) ");
+            sql.append("AND (LOWER(city) LIKE ? OR LOWER(state) LIKE ?) ");
             String like = "%" + keyword.toLowerCase() + "%";
             params.add(like);
             params.add(like);
         }
 
-        // Penapis: wifi
-        if ("on".equalsIgnoreCase(wifi)) {
-            sql.append("AND h.has_wifi = 1 ");
-        }
+        if ("on".equalsIgnoreCase(wifi)) sql.append("AND has_wifi = 1 ");
+        if ("on".equalsIgnoreCase(aircond)) sql.append("AND has_aircond = 1 ");
 
-        // Penapis: aircond
-        if ("on".equalsIgnoreCase(aircond)) {
-            sql.append("AND h.has_aircond = 1 ");
-        }
-
-        // Penapis: bilangan bilik tidur minimum
         if (minBeds != null && !minBeds.trim().isEmpty()) {
             try {
                 int min = Integer.parseInt(minBeds);
-                sql.append("AND h.num_bedrooms >= ? ");
+                sql.append("AND num_bedrooms >= ? ");
                 params.add(min);
             } catch (NumberFormatException ignore) {}
         }
 
-        sql.append("ORDER BY h.homestay_id DESC");
+        sql.append("ORDER BY homestay_id DESC");
 
         try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) {
@@ -311,12 +294,13 @@ public class HomestayDAO {
                 h.setPricePerNight(rs.getDouble("price_per_night"));
                 h.setMaxGuests(rs.getInt("max_guests"));
                 h.setCreatedAt(rs.getString("created_at"));
-                h.setImagePath(rs.getString("image_path"));
-
-                // Kemudahan
                 h.setHasWifi(rs.getBoolean("has_wifi"));
                 h.setHasAircond(rs.getBoolean("has_aircond"));
                 h.setNumBedrooms(rs.getInt("num_bedrooms"));
+
+                // ambil image ID pertama
+                Image img = imageDAO.getFirstImage(h.getHomestayId());
+                if (img != null) h.setImageId(img.getImageId());
 
                 list.add(h);
             }
@@ -324,20 +308,14 @@ public class HomestayDAO {
 
         return list;
     }
+
     
     //Senaraikan semua homestay yang ada dalam database
     public List<Homestay> getAllHomestays() throws SQLException {
         List<Homestay> list = new ArrayList<>();
-        String sql = "SELECT h.*, i.image_path " +
-                     "FROM homestays h " +
-                     "LEFT JOIN ( " +
-                     "  SELECT i1.homestay_id, i1.image_path " +
-                     "  FROM images i1 " +
-                     "  INNER JOIN (SELECT homestay_id, MIN(uploaded_at) AS first_upload FROM images GROUP BY homestay_id) i2 " +
-                     "  ON i1.homestay_id = i2.homestay_id AND i1.uploaded_at = i2.first_upload " +
-                     ") i ON h.homestay_id = i.homestay_id " +
-                     "ORDER BY h.homestay_id DESC";
+        ImageDAO imageDAO = new ImageDAO(conn);
 
+        String sql = "SELECT * FROM homestays ORDER BY homestay_id DESC";
         try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
@@ -352,12 +330,16 @@ public class HomestayDAO {
                 h.setPricePerNight(rs.getDouble("price_per_night"));
                 h.setMaxGuests(rs.getInt("max_guests"));
                 h.setCreatedAt(rs.getString("created_at"));
-                h.setImagePath(rs.getString("image_path"));
+
+                // Dapatkan imageId pertama (jika ada)
+                Image img = imageDAO.getFirstImage(h.getHomestayId());
+                if (img != null) h.setImageId(img.getImageId());
+
                 list.add(h);
             }
         }
 
         return list;
     }
-    // ❌ Tambahan lain seperti update/delete boleh dibuat kemudian
+
 }
