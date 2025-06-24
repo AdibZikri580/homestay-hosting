@@ -8,6 +8,6 @@ public class DBUtil {
     public static Connection getConnection() throws Exception {
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/homestayfinder", "root", "admin");
+            "mysql://root:imsdAgIUZwcdPfXZlfPXuxfnHffdyblU@mainline.proxy.rlwy.net:31869/railway", "root", "imsdAgIUZwcdPfXZlfPXuxfnHffdyblU");
     }
 }
