@@ -8,7 +8,7 @@
 
 <% for (Homestay h : randomList) { %>
     <div class="homestay-card">
-        <img src="<%= (h.getImagePath() != null) ? "FileServeServlet?name=" + new java.io.File(h.getImagePath()).getName() : "img/placeholder.png" %>" alt="Gambar Homestay">
+        <img src="<%= (h.getImageId() != 0) ? "FileServeServlet?id=" + h.getImageId() : "img/placeholder.png" %>" alt="Gambar Homestay">
         <h4><%= h.getName() %></h4>
         <p>RM<%= String.format("%.2f", h.getPricePerNight()) %> / night — <%= h.getCity() %>, <%= h.getState() %></p>
     </div>
