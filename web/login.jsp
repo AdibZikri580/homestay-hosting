@@ -13,6 +13,22 @@
       <link rel="stylesheet" href="css/login.css">
       <script src="http://code.jquery.com/jquery-3.7.1.min.js"></script>
       <script src="js/login.js"></script>
+      
+      <%
+        Boolean loginSuccess = (Boolean) request.getAttribute("loginSuccess");
+        Boolean loginFail = (Boolean) request.getAttribute("loginFail");
+        String userRole = (String) request.getAttribute("userRole");
+
+        if (loginSuccess == null) loginSuccess = false;
+        if (loginFail == null) loginFail = false;
+      %>
+
+      <script>
+        const loginSuccess = <%= loginSuccess %>;
+        const loginFail = <%= loginFail %>;
+        const userRole = "<%= userRole != null ? userRole : "" %>";
+      </script>
+
     </head>
     <body>
 

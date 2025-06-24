@@ -35,14 +35,9 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("email", user.getEmail());
 
 
-                // 4. Redirect ikut jenis pengguna
-                if ("customer".equals(user.getUserType())) {
-                    response.sendRedirect("login.jsp?login=success&role=customer");
-                } else if ("homestay_owner".equals(user.getUserType())) {
-                    response.sendRedirect("login.jsp?login=success&role=homestay_owner");
-                } else {
-                    response.sendRedirect("login.jsp?login=fail");
-                }
+                // 4. Hantar mesej popup ke JSP
+                request.setAttribute("loginSuccess", true);
+                request.setAttribute("userRole", user.getUserType());
 
             } else {
                 // Login gagal
@@ -53,5 +48,8 @@ public class LoginServlet extends HttpServlet {
             ex.printStackTrace();
             response.sendRedirect("login.jsp?login=fail");
         }
+        
+        // Forward ke login.jsp dengan mesej
+        request.getRequestDispatcher("login.jsp").forward(request, response);
     }
 }
