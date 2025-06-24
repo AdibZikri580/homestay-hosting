@@ -45,9 +45,9 @@ public class SearchHomestayServlet extends HttpServlet {
             request.getRequestDispatcher("searchHomestay.jsp").forward(request, response);
 
         } catch (Exception e) {
-            e.printStackTrace(); // log error di console
-            request.setAttribute("errorMessage", e.getMessage());
-            request.getRequestDispatcher("error.jsp").forward(request, response);
+            e.printStackTrace();
+            response.setContentType("text/html");
+            response.getWriter().println("<h3>Something went wrong. Please try again later.</h3>");
         }
     }
 }
