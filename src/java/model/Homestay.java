@@ -3,6 +3,7 @@ package model;
 public class Homestay implements java.io.Serializable{
 
     private int homestayId;
+    private int imageId;
     private int userId;
     private String name;
     private String description;
@@ -36,6 +37,14 @@ public class Homestay implements java.io.Serializable{
         this.homestayId = homestayId;
     }
 
+    public int getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(int imageId) {
+        this.imageId = imageId;
+    }
+    
     public int getUserId() {
         return userId;
     }

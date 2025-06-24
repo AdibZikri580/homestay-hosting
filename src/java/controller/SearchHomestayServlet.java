@@ -1,7 +1,9 @@
 package controller;
 
 import dao.HomestayDAO;
+import dao.ImageDAO;
 import model.Homestay;
+import model.Image;
 import util.DBUtil;
 
 import javax.servlet.ServletException;
@@ -29,15 +31,25 @@ public class SearchHomestayServlet extends HttpServlet {
         String kitchen = request.getParameter("kitchen");
 
         try (Connection conn = DBUtil.getConnection()) {
-            HomestayDAO dao = new HomestayDAO(conn);
+            HomestayDAO homestayDAO = new HomestayDAO(conn);
+            ImageDAO imageDAO = new ImageDAO(conn);
+
             List<Homestay> homestays;
 
             boolean adaFilter = search != null || wifi != null || aircond != null || kitchen != null;
 
             if (adaFilter) {
-                homestays = dao.searchHomestays(search, wifi, aircond, kitchen);
+                homestays = homestayDAO.searchHomestays(search, wifi, aircond, kitchen);
             } else {
-                homestays = dao.getAllHomestays(); // Jika tiada parameter, paparkan semua homestay
+                homestays = homestayDAO.getAllHomestays();
+            }
+
+            // Tambah imageId ke setiap homestay
+            for (Homestay h : homestays) {
+                Image img = imageDAO.getFirstImage(h.getHomestayId());
+                if (img != null) {
+                    h.setImageId(img.getImageId());
+                }
             }
 
             request.setAttribute("homestays", homestays);

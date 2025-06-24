@@ -73,7 +73,7 @@
         <% if (results != null && !results.isEmpty()) {
             for (Homestay h : results) { %>
             <div class="homestay-card" onclick="location.href='HomestayDetailServlet?id=<%= h.getHomestayId() %>';">
-                <img src="<%= (h.getImagePath() != null) ? "FileServeServlet?name=" + new java.io.File(h.getImagePath()).getName() : "img/placeholder.png" %>" alt="Gambar Homestay">
+                <img src="<%= (h.getImageId() != 0) ? "FileServeServlet?id=" + h.getImageId() : "img/placeholder.png" %>" alt="Gambar Homestay">
                 <h3><%= h.getName() %></h3>
                 <p><%= h.getCity() %>, <%= h.getState() %></p>
                 <p>RM <%= String.format("%.2f", h.getPricePerNight()) %> / night</p>

@@ -3,8 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/TUF/Documents/NetBeansProjects/HomestayFinder/web/homepage.jsp</file>
-            <file>file:/C:/Users/TUF/Documents/NetBeansProjects/HomestayFinder/src/java/controller/SearchHomestayServlet.java</file>
+            <file>file:/C:/Users/TUF/Documents/NetBeansProjects/HomestayFinder/web/addHomestay.jsp</file>
+            <file>file:/C:/Users/TUF/Documents/NetBeansProjects/HomestayFinder/src/java/dao/ImageDAO.java</file>
+            <file>file:/C:/Users/TUF/Documents/NetBeansProjects/HomestayFinder/src/java/controller/AddHomestayServlet.java</file>
+            <file>file:/C:/Users/TUF/Documents/NetBeansProjects/HomestayFinder/src/java/model/Image.java</file>
+            <file>file:/C:/Users/TUF/Documents/NetBeansProjects/HomestayFinder/src/java/controller/FileServeServlet.java</file>
         </group>
     </open-files>
 </project-private>
