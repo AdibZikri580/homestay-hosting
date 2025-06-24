@@ -36,17 +36,25 @@ public class AddHomestayServlet extends HttpServlet {
         String address = request.getParameter("address");
         String city = request.getParameter("city");
         String state = request.getParameter("state");
-        double price = Double.parseDouble(request.getParameter("price"));
-        int maxGuests = Integer.parseInt(request.getParameter("maxGuests"));
-        int numBedrooms = Integer.parseInt(request.getParameter("numBedrooms"));
-        int numBathrooms = Integer.parseInt(request.getParameter("numBathrooms"));
+        
+        String priceStr = request.getParameter("price_per_night");
+        double price = 0.0;
+        if (priceStr != null && !priceStr.trim().isEmpty()) {
+            price = Double.parseDouble(priceStr.trim());
+        } else {
+            throw new IllegalArgumentException("Field 'price_per_night' kosong atau tidak sah.");
+        }
 
-        boolean hasWifi = request.getParameter("hasWifi") != null;
-        boolean hasParking = request.getParameter("hasParking") != null;
-        boolean hasAircond = request.getParameter("hasAircond") != null;
-        boolean hasTv = request.getParameter("hasTv") != null;
-        boolean hasKitchen = request.getParameter("hasKitchen") != null;
-        boolean hasWashingMachine = request.getParameter("hasWashingMachine") != null;
+        int maxGuests = Integer.parseInt(request.getParameter("max_guests"));
+        int numBedrooms = Integer.parseInt(request.getParameter("num_bedrooms"));
+        int numBathrooms = Integer.parseInt(request.getParameter("num_bathrooms"));
+
+        boolean hasWifi = request.getParameter("has_wifi") != null;
+        boolean hasParking = request.getParameter("has_parking") != null;
+        boolean hasAircond = request.getParameter("has_aircond") != null;
+        boolean hasTv = request.getParameter("has_tv") != null;
+        boolean hasKitchen = request.getParameter("has_kitchen") != null;
+        boolean hasWashingMachine = request.getParameter("has_washing_machine") != null;
 
         try (Connection conn = DBUtil.getConnection()) {
             HomestayDAO homestayDAO = new HomestayDAO(conn);
