@@ -21,7 +21,7 @@
 
         <nav class="center-links">
           <a href="homepage.jsp" class="active">Homepage</a>
-          <a href="src/java/controller/SearchHomestayServlet">Search Homestay</a>
+          <a href="${pageContext.request.contextPath}/SearchHomestayServlet">Search Homestay</a>
         </nav>
 
         <div class="right-links">
