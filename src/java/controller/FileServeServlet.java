@@ -14,7 +14,7 @@ import java.sql.Connection;
 public class FileServeServlet extends HttpServlet {
 
     // Lokasi fail lama (gambar yang disimpan sebagai file biasa)
-    private static final String FILE_DIRECTORY = "/upload";
+    private static final String FILE_DIRECTORY = "C:/Users/TUF/Documents/NetBeansProjects/HomestayFinder/upload";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
