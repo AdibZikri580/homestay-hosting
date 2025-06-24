@@ -68,7 +68,7 @@
             %>
 
               <div class="booking-item">
-                <img src="<%= (b.getImagePath() != null) ? "FileServeServlet?name=" + new java.io.File(b.getImagePath()).getName() : "img/placeholder.png" %>" alt="Homestay image">
+                <img src="FileServeServlet?id=${booking.imageId}" alt="Homestay Image">
                 <div>
                   <p class="homestay-name"><%= b.getHomestayName() %></p>
                   <p><%= b.getCheckIn() %> – <%= b.getCheckOut() %></p>

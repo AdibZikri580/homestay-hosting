@@ -13,10 +13,10 @@ public class Booking implements java.io.Serializable {
     private String customerName;
     private String homestayName;
     private String imagePath;
+    private int imageId;
 
     public Booking() {
     }
-
     
     // Getter dan Setter
     public int getBookingId() {
@@ -114,4 +114,13 @@ public class Booking implements java.io.Serializable {
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
+
+    public int getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(int imageId) {
+        this.imageId = imageId;
+    }
+    
 }

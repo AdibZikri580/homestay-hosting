@@ -31,22 +31,20 @@ public class BookingDAO {
         }
     }
 
-    // 🟨 Dapatkan semua tempahan untuk homestay owner
+    //Dapatkan semua tempahan untuk homestay owner
     public List<Booking> getBookingsByOwnerId(int ownerId) throws SQLException {
         List<Booking> list = new ArrayList<>();
-        String sql = "SELECT b.*, u.full_name, h.name AS homestay_name, " +
-                     "       COALESCE(img.image_path, 'img/placeholder.png') AS image_path " +
+        String sql = "SELECT b.*, u.full_name, h.name AS homestay_name, img.image_id " +
                      "FROM bookings b " +
                      "JOIN users u ON b.user_id = u.user_id " +
                      "JOIN homestays h ON b.homestay_id = h.homestay_id " +
                      "LEFT JOIN ( " +
-                     "  SELECT i1.homestay_id, i1.image_path " +
+                     "  SELECT i1.homestay_id, i1.image_id " + 
                      "  FROM images i1 " +
                      "  INNER JOIN ( " +
                      "     SELECT homestay_id, MIN(uploaded_at) AS first_upload " +
                      "     FROM images GROUP BY homestay_id " +
-                     "  ) i2 ON i1.homestay_id = i2.homestay_id " +
-                     "     AND i1.uploaded_at = i2.first_upload " +
+                     "  ) i2 ON i1.homestay_id = i2.homestay_id AND i1.uploaded_at = i2.first_upload " +
                      ") img ON h.homestay_id = img.homestay_id " +
                      "WHERE h.user_id = ? " +
                      "ORDER BY b.check_in ASC";
@@ -65,9 +63,9 @@ public class BookingDAO {
                     b.setTotalPrice(rs.getDouble("total_price"));
                     b.setStatus(rs.getString("status"));
                     b.setCreatedAt(rs.getString("created_at"));
-                    b.setCustomerName(rs.getString("full_name"));     // tambahan dalam model
-                    b.setHomestayName(rs.getString("homestay_name")); // tambahan
-                    b.setImagePath(rs.getString("image_path"));       // tambahan
+                    b.setCustomerName(rs.getString("full_name"));
+                    b.setHomestayName(rs.getString("homestay_name"));
+                    b.setImageId(rs.getInt("image_id"));
                     list.add(b);
                 }
             }
@@ -76,7 +74,8 @@ public class BookingDAO {
     }
 
 
-    // 🟦 Kemaskini status tempahan
+
+    // Kemaskini status tempahan
     public boolean updateStatus(int bookingId, String newStatus) throws SQLException {
         String sql = "UPDATE bookings SET status = ? WHERE booking_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -86,9 +85,21 @@ public class BookingDAO {
         }
     }
 
-    // 🔍 Dapatkan tempahan berdasarkan ID
+    // Dapatkan tempahan berdasarkan ID
     public Booking getBookingById(int bookingId) throws SQLException {
-        String sql = "SELECT * FROM bookings WHERE booking_id = ?";
+        String sql = "SELECT b.*, h.name AS homestay_name, img.image_id " +
+             "FROM bookings b " +
+             "JOIN homestays h ON b.homestay_id = h.homestay_id " +
+             "LEFT JOIN ( " +
+             "  SELECT i1.homestay_id, i1.image_id " +
+             "  FROM images i1 " +
+             "  INNER JOIN ( " +
+             "    SELECT homestay_id, MIN(uploaded_at) AS first_upload " +
+             "    FROM images GROUP BY homestay_id " +
+             "  ) i2 ON i1.homestay_id = i2.homestay_id AND i1.uploaded_at = i2.first_upload " +
+             ") img ON h.homestay_id = img.homestay_id " +
+             "WHERE b.booking_id = ?";
+
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, bookingId);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -97,13 +108,16 @@ public class BookingDAO {
                     b.setBookingId(rs.getInt("booking_id"));
                     b.setUserId(rs.getInt("user_id"));
                     b.setHomestayId(rs.getInt("homestay_id"));
+                    b.setHomestayName(rs.getString("homestay_name"));
                     b.setCheckIn(rs.getString("check_in"));
                     b.setCheckOut(rs.getString("check_out"));
                     b.setTotalPrice(rs.getDouble("total_price"));
                     b.setTotalGuests(rs.getInt("total_guests"));
                     b.setStatus(rs.getString("status"));
                     b.setCreatedAt(rs.getString("created_at"));
+                    b.setImageId(rs.getInt("image_id")); 
                     return b;
+
                 }
             }
         }
@@ -113,19 +127,20 @@ public class BookingDAO {
     //Check Senarai booking by customer
     public List<Booking> getByCustomer(int userId) throws SQLException {
         List<Booking> list = new ArrayList<>();
-        String sql = "SELECT b.*, h.name AS homestay_name, img.image_path " +
-                     "FROM bookings b " +
-                     "JOIN homestays h ON b.homestay_id = h.homestay_id " +
-                     "LEFT JOIN ( " +
-                     "  SELECT i1.homestay_id, i1.image_path " +
-                     "  FROM images i1 " +
-                     "  INNER JOIN ( " +
-                     "    SELECT homestay_id, MIN(uploaded_at) AS first_upload " +
-                     "    FROM images GROUP BY homestay_id " +
-                     "  ) i2 ON i1.homestay_id = i2.homestay_id AND i1.uploaded_at = i2.first_upload " +
-                     ") img ON h.homestay_id = img.homestay_id " +
-                     "WHERE b.user_id = ? " +
-                     "ORDER BY b.check_in ASC";
+        String sql = "SELECT b.*, h.name AS homestay_name, img.image_id " +
+             "FROM bookings b " +
+             "JOIN homestays h ON b.homestay_id = h.homestay_id " +
+             "LEFT JOIN ( " +
+             "  SELECT i1.homestay_id, i1.image_id " +
+             "  FROM images i1 " +
+             "  INNER JOIN ( " +
+             "    SELECT homestay_id, MIN(uploaded_at) AS first_upload " +
+             "    FROM images GROUP BY homestay_id " +
+             "  ) i2 ON i1.homestay_id = i2.homestay_id AND i1.uploaded_at = i2.first_upload " +
+             ") img ON h.homestay_id = img.homestay_id " +
+             "WHERE b.user_id = ? " +
+             "ORDER BY b.check_in ASC";
+
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
@@ -140,7 +155,7 @@ public class BookingDAO {
                     b.setTotalPrice(rs.getDouble("total_price"));
                     b.setTotalGuests(rs.getInt("total_guests"));
                     b.setStatus(rs.getString("status"));
-                    b.setImagePath(rs.getString("image_path"));
+                    b.setImageId(rs.getInt("image_id"));
                     list.add(b);
                 }
             }
