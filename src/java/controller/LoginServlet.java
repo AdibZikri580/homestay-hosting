@@ -3,6 +3,7 @@ package controller;
 import dao.UserDAO;
 import model.User;
 import util.DBUtil;
+
 import java.sql.Connection;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,39 +18,40 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
 
         // 1. Ambil input borang
-        String email    = request.getParameter("email");
+        String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        try (Connection conn = DBUtil.getConnection()){
-            /* 2. Guna DAO */
+        try (Connection conn = DBUtil.getConnection()) {
+            // 2. Check login melalui DAO
             UserDAO userDao = new UserDAO(conn);
             User user = userDao.checkLogin(email, password);
 
             if (user != null) {
-                // 3. Simpan ke session
+                // 3. Simpan maklumat user dalam session
                 HttpSession session = request.getSession();
-                session.setAttribute("user_id",   user.getUserId());
+                session.setAttribute("user_id", user.getUserId());
                 session.setAttribute("full_name", user.getFullName());
                 session.setAttribute("user_type", user.getUserType());
                 session.setAttribute("phone", user.getPhone());
                 session.setAttribute("email", user.getEmail());
 
-
-                // 4. Hantar mesej popup ke JSP
-                request.setAttribute("loginSuccess", true);
-                request.setAttribute("userRole", user.getUserType());
+                // 4. Hantar status login dan jenis user ke login.jsp
+                request.setAttribute("login", "success");
+                request.setAttribute("role", user.getUserType());
 
             } else {
                 // Login gagal
-                response.sendRedirect("login.jsp?login=fail");
+                request.setAttribute("login", "fail");
             }
+
+            // 5. Hantar semula ke login.jsp untuk tunjuk popup
+            request.getRequestDispatcher("login.jsp").forward(request, response);
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            response.sendRedirect("login.jsp?login=fail");
+            // 6. Ralat sistem
+            request.setAttribute("login", "fail");
+            request.getRequestDispatcher("login.jsp").forward(request, response);
         }
-        
-        // Forward ke login.jsp dengan mesej
-        request.getRequestDispatcher("login.jsp").forward(request, response);
     }
 }
