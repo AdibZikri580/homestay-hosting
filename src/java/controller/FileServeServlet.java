@@ -52,14 +52,11 @@ public class FileServeServlet extends HttpServlet {
                     return;
                 }
             }
-
-            // ✅ Jika nama fail diberikan (fallback lama)
             if (fileNameParam != null) {
                 serveFromFile(fileNameParam, response);
                 return;
             }
-
-            // ❌ Tiada parameter langsung
+            
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No image ID or name provided.");
 
         } catch (Exception e) {

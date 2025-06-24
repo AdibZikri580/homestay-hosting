@@ -95,10 +95,10 @@ public class HomestayDAO {
     // Ambil semua homestay milik owner tertentu
     public List<Homestay> getHomestaysByOwner(int ownerId) throws SQLException {
         List<Homestay> list = new ArrayList<>();
-        String sql = "SELECT h.*, i.image_path, i.image_id " +
+        String sql = "SELECT h.*, i.image_id " +
                      "FROM homestays h " +
                      "LEFT JOIN ( " +
-                     "   SELECT i1.homestay_id, i1.image_path " +
+                     "   SELECT i1.homestay_id, i1.image_id " +
                      "   FROM images i1 " +
                      "   INNER JOIN ( " +
                      "     SELECT homestay_id, MIN(uploaded_at) AS first_upload " +
@@ -122,7 +122,7 @@ public class HomestayDAO {
                 h.setPricePerNight(rs.getDouble("price_per_night"));
                 h.setMaxGuests(rs.getInt("max_guests"));
                 h.setCreatedAt(rs.getString("created_at"));
-                h.setImagePath(rs.getString("image_path"));
+                h.setImageId(rs.getInt("image_id"));
                 h.setHasWifi(rs.getBoolean("has_wifi"));
                 h.setHasParking(rs.getBoolean("has_parking"));
                 h.setHasAircond(rs.getBoolean("has_aircond"));
@@ -137,7 +137,6 @@ public class HomestayDAO {
         }
         return list;
     }
-
 
     //Update homestay details
     public boolean update(Homestay h) throws SQLException {

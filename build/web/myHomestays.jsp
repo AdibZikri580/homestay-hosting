@@ -43,7 +43,7 @@
                for (Homestay h : homestays) { %>
 
             <div class="homestay-card">
-              <img src="<%= (h.getImagePath() != null) ? "FileServeServlet?name=" + new java.io.File(h.getImagePath()).getName() : "img/placeholder.png" %>" alt="Gambar Homestay">
+              <img src="FileServeServlet?id=${homestay.imageId}" class="img-fluid" />
               <div class="details">
                 <h2><%= h.getName() %></h2>
                 <p><%= h.getAddress() %>, <%= h.getCity() %>, <%= h.getState() %></p>
