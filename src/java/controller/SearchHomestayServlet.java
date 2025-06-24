@@ -6,7 +6,10 @@ import util.DBUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
@@ -17,6 +20,8 @@ public class SearchHomestayServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        System.out.println("SearchHomestayServlet triggered...");
 
         String search = request.getParameter("search");
         String wifi   = request.getParameter("wifi");
@@ -32,7 +37,7 @@ public class SearchHomestayServlet extends HttpServlet {
             if (adaFilter) {
                 homestays = dao.searchHomestays(search, wifi, aircond, kitchen);
             } else {
-                homestays = dao.getAllHomestays(); // jika tiada parameter, display semua homestay
+                homestays = dao.getAllHomestays(); // Jika tiada parameter, paparkan semua homestay
             }
 
             request.setAttribute("homestays", homestays);
@@ -41,7 +46,8 @@ public class SearchHomestayServlet extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("error.jsp");
+            response.setContentType("text/html");
+            response.getWriter().println("<h3>Something went wrong. Please try again later.</h3>");
         }
     }
 }
