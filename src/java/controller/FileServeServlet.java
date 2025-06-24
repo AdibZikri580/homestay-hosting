@@ -13,25 +13,26 @@ import java.sql.Connection;
 @WebServlet("/FileServeServlet")
 public class FileServeServlet extends HttpServlet {
 
-    // ✅ Lokasi fallback untuk fail lama (jika image_data tiada)
+    // Lokasi fail lama (gambar yang disimpan sebagai file biasa)
     private static final String FILE_DIRECTORY = "C:/Users/TUF/Documents/NetBeansProjects/HomestayFinder/upload";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String imageIdParam = request.getParameter("id");
+        String imageIdParam = request.getParameter("id");    // untuk BLOB
+        String fileNameParam = request.getParameter("name"); // untuk fail biasa
 
-        if (imageIdParam != null) {
-            try {
-                int imageId = Integer.parseInt(imageIdParam);
+        try (Connection conn = DBUtil.getConnection()) {
 
-                try (Connection conn = DBUtil.getConnection()) {
+            // ✅ Jika ID gambar diberikan (guna BLOB)
+            if (imageIdParam != null) {
+                try {
+                    int imageId = Integer.parseInt(imageIdParam);
                     ImageDAO imageDAO = new ImageDAO(conn);
                     Image image = imageDAO.getImageById(imageId);
 
                     if (image != null && image.getImageData() != null) {
-                        // ✅ Serve image dari database (BLOB)
                         response.setContentType(image.getFileType());
                         response.setContentLength(image.getImageData().length);
 
@@ -40,18 +41,31 @@ public class FileServeServlet extends HttpServlet {
                         }
                         return;
                     } else if (image != null && image.getFileName() != null) {
-                        // 🔁 Fallback jika hanya ada file name (dari fail lama)
                         serveFromFile(image.getFileName(), response);
                         return;
+                    } else {
+                        response.sendError(HttpServletResponse.SC_NOT_FOUND, "Image data not found.");
+                        return;
                     }
+                } catch (NumberFormatException e) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid image ID.");
+                    return;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-        }
 
-        // ❌ Jika gagal, hantar error
-        response.sendError(HttpServletResponse.SC_NOT_FOUND, "Image not found.");
+            // ✅ Jika nama fail diberikan (fallback lama)
+            if (fileNameParam != null) {
+                serveFromFile(fileNameParam, response);
+                return;
+            }
+
+            // ❌ Tiada parameter langsung
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No image ID or name provided.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server error.");
+        }
     }
 
     private void serveFromFile(String fileName, HttpServletResponse response) throws IOException {
@@ -62,14 +76,12 @@ public class FileServeServlet extends HttpServlet {
 
         File file = new File(FILE_DIRECTORY, fileName);
         if (!file.exists()) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "File not found.");
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "File not found: " + fileName);
             return;
         }
 
         String mime = getServletContext().getMimeType(file.getName());
-        if (mime == null) {
-            mime = "application/octet-stream";
-        }
+        if (mime == null) mime = "application/octet-stream";
 
         response.setContentType(mime);
         response.setContentLengthLong(file.length());
@@ -77,9 +89,9 @@ public class FileServeServlet extends HttpServlet {
         try (InputStream in = new FileInputStream(file);
              OutputStream out = response.getOutputStream()) {
             byte[] buffer = new byte[8192];
-            int length;
-            while ((length = in.read(buffer)) > 0) {
-                out.write(buffer, 0, length);
+            int len;
+            while ((len = in.read(buffer)) > 0) {
+                out.write(buffer, 0, len);
             }
         }
     }

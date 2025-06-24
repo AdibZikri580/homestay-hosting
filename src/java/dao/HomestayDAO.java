@@ -55,9 +55,7 @@ public class HomestayDAO {
         }
     }
 
-
-
-    // ✅ Dapatkan senarai homestay milik owner tertentu
+    //Dapatkan senarai homestay milik owner tertentu
     public List<Homestay> getByOwner(int ownerId) throws SQLException {
         List<Homestay> list = new ArrayList<>();
         String sql = "SELECT * FROM homestays WHERE user_id = ?";
@@ -97,7 +95,7 @@ public class HomestayDAO {
     // Ambil semua homestay milik owner tertentu
     public List<Homestay> getHomestaysByOwner(int ownerId) throws SQLException {
         List<Homestay> list = new ArrayList<>();
-        String sql = "SELECT h.*, i.image_path " +
+        String sql = "SELECT h.*, i.image_path, i.image_id " +
                      "FROM homestays h " +
                      "LEFT JOIN ( " +
                      "   SELECT i1.homestay_id, i1.image_path " +
@@ -300,7 +298,10 @@ public class HomestayDAO {
 
                 // ambil image ID pertama
                 Image img = imageDAO.getFirstImage(h.getHomestayId());
-                if (img != null) h.setImageId(img.getImageId());
+                if (img != null) {
+                    h.setImageId(img.getImageId());
+                    h.setImagePath(img.getFileName());
+                }
 
                 list.add(h);
             }
@@ -308,7 +309,6 @@ public class HomestayDAO {
 
         return list;
     }
-
     
     //Senaraikan semua homestay yang ada dalam database
     public List<Homestay> getAllHomestays() throws SQLException {
@@ -333,12 +333,14 @@ public class HomestayDAO {
 
                 // Dapatkan imageId pertama (jika ada)
                 Image img = imageDAO.getFirstImage(h.getHomestayId());
-                if (img != null) h.setImageId(img.getImageId());
+                if (img != null) {
+                    h.setImageId(img.getImageId());
+                    h.setImagePath(img.getFileName());
+                }
 
                 list.add(h);
             }
         }
-
         return list;
     }
 
