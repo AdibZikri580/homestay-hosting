@@ -1,15 +1,16 @@
 package model;
 
-public class Image implements java.io.Serializable{
+import java.sql.Timestamp;
+
+public class Image {
     private int imageId;
     private int homestayId;
-    private String imagePath;
-    private String uploadedAt;
+    private String fileName;      // Nama fail asal
+    private byte[] imageData;     // Kandungan gambar dalam BLOB
+    private String fileType;      // MIME type (cth: image/jpeg)
+    private Timestamp uploadedAt;
 
-    public Image() {
-    }
-    
-    // Getters and Setters
+    // Getter dan Setter
     public int getImageId() {
         return imageId;
     }
@@ -26,19 +27,35 @@ public class Image implements java.io.Serializable{
         this.homestayId = homestayId;
     }
 
-    public String getImagePath() {
-        return imagePath;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
-    public String getUploadedAt() {
+    public byte[] getImageData() {
+        return imageData;
+    }
+
+    public void setImageData(byte[] imageData) {
+        this.imageData = imageData;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
+    }
+
+    public Timestamp getUploadedAt() {
         return uploadedAt;
     }
 
-    public void setUploadedAt(String uploadedAt) {
+    public void setUploadedAt(Timestamp uploadedAt) {
         this.uploadedAt = uploadedAt;
     }
 }

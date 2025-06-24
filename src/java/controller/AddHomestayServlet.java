@@ -12,8 +12,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.*;
 import java.sql.Connection;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @WebServlet("/AddHomestayServlet")
@@ -24,8 +24,7 @@ import java.util.UUID;
 )
 public class AddHomestayServlet extends HttpServlet {
 
-    // tempat simpan gambar
-    private static final String ABSOLUTE_UPLOAD_DIR = "C:/Users/TUF/Documents/NetBeansProjects/HomestayFinder/upload";//tukar path ikut folder dalam yang nak letak gambar
+    private static final String ABSOLUTE_UPLOAD_DIR = "C:/Users/TUF/Documents/NetBeansProjects/HomestayFinder/upload";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -39,7 +38,7 @@ public class AddHomestayServlet extends HttpServlet {
         }
 
         try {
-            // Ambil detail homestay
+            // Ambil maklumat homestay
             String name = request.getParameter("name");
             String description = request.getParameter("description");
             String address = request.getParameter("address");
@@ -57,24 +56,35 @@ public class AddHomestayServlet extends HttpServlet {
             boolean hasKitchen = request.getParameter("has_kitchen") != null;
             boolean hasWashingMachine = request.getParameter("has_washing_machine") != null;
 
-            // Uruskan Fail Gambar
+            // Ambil fail gambar
             Part filePart = request.getPart("image");
             String originalFileName = extractFileName(filePart);
-
-            // Elakkan nama fail berganda
             String extension = originalFileName.substring(originalFileName.lastIndexOf('.'));
-            String uniqueName = UUID.randomUUID().toString() + extension;
+            String uniqueFileName = UUID.randomUUID().toString() + extension;
+            String fileType = filePart.getContentType();
 
-            // Buat folder upload jika belum wujud
+            // Simpan gambar ke filesystem (fallback)
             File uploadDir = new File(ABSOLUTE_UPLOAD_DIR);
             if (!uploadDir.exists()) uploadDir.mkdirs();
 
-            // Simpan fail di lokasi tetap
-            File savedFile = new File(uploadDir, uniqueName);
+            File savedFile = new File(uploadDir, uniqueFileName);
             filePart.write(savedFile.getAbsolutePath());
 
-            try (Connection conn = DBUtil.getConnection()) {
+            // Baca semula gambar untuk BLOB
+            byte[] imageBytes;
+            try (InputStream inputStream = new FileInputStream(savedFile);
+                 ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
 
+                byte[] temp = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(temp)) != -1) {
+                    buffer.write(temp, 0, bytesRead);
+                }
+                imageBytes = buffer.toByteArray();
+            }
+
+            try (Connection conn = DBUtil.getConnection()) {
+                // Simpan homestay
                 Homestay homestay = new Homestay();
                 homestay.setUserId(ownerId);
                 homestay.setName(name);
@@ -96,13 +106,16 @@ public class AddHomestayServlet extends HttpServlet {
                 HomestayDAO homestayDAO = new HomestayDAO(conn);
                 int newHomestayId = homestayDAO.insert(homestay);
 
+                // Simpan gambar (metadata + blob)
                 Image img = new Image();
                 img.setHomestayId(newHomestayId);
-                img.setImagePath(uniqueName);
-                img.setUploadedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                img.setFileName(uniqueFileName); // fallback file name
+                img.setImageData(imageBytes);    // BLOB
+                img.setFileType(fileType);
+                img.setUploadedAt(Timestamp.valueOf(LocalDateTime.now()));
 
-                ImageDAO imgDAO = new ImageDAO(conn);
-                imgDAO.insert(img);
+                ImageDAO imageDAO = new ImageDAO(conn);
+                imageDAO.insert(img);
 
                 response.sendRedirect("MyHomestayServlet");
 
