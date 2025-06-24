@@ -9,6 +9,7 @@
 <html>
     <head>
       <title>HomestayFinder - Homepage</title>
+      <link> rel="icon" href="img/favicon.ico" type="image/x-icon">
       <link rel="stylesheet" href="css/homepage.css">
       <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
       <script src="js/homepage.js"></script>
@@ -21,7 +22,7 @@
 
         <nav class="center-links">
           <a href="homepage.jsp" class="active">Homepage</a>
-          <a href="SearchHomestayServlet">Search Homestay</a>
+          <a href="${pageContext.request.contextPath}/SearchHomestayServlet">Search Homestay</a>
         </nav>
 
         <div class="right-links">
